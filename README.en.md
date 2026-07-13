@@ -33,28 +33,21 @@ The distributable Skill is the `skills/chatpic` directory. Repository documentat
 
 ## Install
 
-### Hermes
+### Option 1: Ask your agent to install it (recommended)
 
-```bash
-hermes skills install focuxdot/chatpic/skills/chatpic
+Send this message directly to Claude Code, Codex, OpenClaw, Hermes, or another compatible agent:
+
+```text
+Run `npx -y skills add focuxdot/ChatPic --skill chatpic --global` to install ChatPic, then confirm that the installation succeeded.
 ```
 
-If another final image-generation Skill competes with ChatPic, optionally disable that Skill through `hermes skills config`. ChatPic still works without this tuning.
-
-### Claude Code
+### Option 2: Install from your terminal
 
 ```bash
-git clone https://github.com/focuxdot/chatpic.git
-mkdir -p ~/.claude/skills
-cp -R ./chatpic/skills/chatpic ~/.claude/skills/chatpic
+npx -y skills add focuxdot/ChatPic --skill chatpic --global
 ```
 
-### OpenClaw
-
-```bash
-git clone https://github.com/focuxdot/chatpic.git
-openclaw skills install ./chatpic/skills/chatpic --global
-```
+The installer detects your local agent and installs ChatPic into its global Skill directory. Node.js 18 or newer is required.
 
 ## Use
 

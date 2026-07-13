@@ -31,28 +31,21 @@ chatpic/
 
 ## 安装
 
-### Hermes
+### 方式一：让 Agent 安装（推荐）
 
-```bash
-hermes skills install focuxdot/chatpic/skills/chatpic
+把下面这句话直接发给 Claude Code、Codex、OpenClaw、Hermes 等 Agent：
+
+```text
+请执行 `npx -y skills add focuxdot/ChatPic --skill chatpic --global` 安装 ChatPic，并确认安装成功。
 ```
 
-如果有其他最终生图 Skill 与 ChatPic 冲突，可以通过 `hermes skills config` 禁用对应 Skill；不做这项调整也不影响 ChatPic 的基本使用。
-
-### Claude Code
+### 方式二：在终端安装
 
 ```bash
-git clone https://github.com/focuxdot/chatpic.git
-mkdir -p ~/.claude/skills
-cp -R ./chatpic/skills/chatpic ~/.claude/skills/chatpic
+npx -y skills add focuxdot/ChatPic --skill chatpic --global
 ```
 
-### OpenClaw
-
-```bash
-git clone https://github.com/focuxdot/chatpic.git
-openclaw skills install ./chatpic/skills/chatpic --global
-```
+安装器会识别本机的 Agent，并将 ChatPic 安装到对应的全局 Skill 目录。需要 Node.js 18 或更高版本。
 
 ## 使用
 
