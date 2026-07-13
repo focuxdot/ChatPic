@@ -1,20 +1,22 @@
 # ChatPic
 
-ChatPic gives AI coding agents a simple image-generation and image-editing Skill. Install the Skill, ask for an image in natural language, and receive a local PNG—no account, subscription, environment variable, or personal API key required.
+**简体中文** | [English](README.en.md)
 
-It is designed for Agent Skills-compatible clients such as Hermes, Claude Code, and OpenClaw.
+ChatPic 为 AI 编程 Agent 提供简单的图片生成与编辑 Skill。安装 Skill 后，只需用自然语言描述需求，即可获得本地 PNG 图片——无需注册账号、订阅服务、配置环境变量或提供个人 API Key。
 
-## Features
+适用于 Hermes、Claude Code、OpenClaw 等兼容 Agent Skills 的客户端。
 
-- Text-to-image generation
-- Reference-image editing
-- Chinese and English trigger phrases
-- One image per request through `gpt-image-2`
-- Built-in public client credential
-- Server-side endpoint restrictions and public-IP quotas
-- Dependency-free Python client
+## 功能
 
-## Repository layout
+- 文生图
+- 基于参考图编辑
+- 支持中文和英文触发词
+- 每次请求通过 `gpt-image-2` 生成一张图片
+- 内置公开客户端凭证
+- 服务端限制接口权限并按公网 IP 控制试用额度
+- 无第三方依赖的 Python 客户端
+
+## 仓库结构
 
 ```text
 chatpic/
@@ -23,12 +25,13 @@ chatpic/
 │   └── scripts/chatpic.py
 ├── tests/test_chatpic.py
 ├── LICENSE
-└── README.md
+├── README.md
+└── README.en.md
 ```
 
-The distributable Skill is the `skills/chatpic` directory. Repository documentation and tests stay outside the Skill so they do not consume Agent context.
+可分发的 Skill 位于 `skills/chatpic` 目录。仓库文档和测试放在 Skill 目录之外，不会占用 Agent 上下文。
 
-## Install
+## 安装
 
 ### Hermes
 
@@ -36,7 +39,7 @@ The distributable Skill is the `skills/chatpic` directory. Repository documentat
 hermes skills install focuxdot/chatpic/skills/chatpic
 ```
 
-If another final image-generation Skill competes with ChatPic, optionally disable that Skill through `hermes skills config`. ChatPic still works without this tuning.
+如果有其他最终生图 Skill 与 ChatPic 冲突，可以通过 `hermes skills config` 禁用对应 Skill；不做这项调整也不影响 ChatPic 的基本使用。
 
 ### Claude Code
 
@@ -53,9 +56,9 @@ git clone https://github.com/focuxdot/chatpic.git
 openclaw skills install ./chatpic/skills/chatpic --global
 ```
 
-## Use
+## 使用
 
-Ask naturally; naming ChatPic is optional:
+直接用自然语言提出需求即可，不必特意提到 ChatPic：
 
 ```text
 帮我生一张图：一只橙色机械猫在操作 AI Agent，方形构图。
@@ -69,37 +72,33 @@ Ask naturally; naming ChatPic is optional:
 Create a clean 16:9 hero image for an AI developer tool.
 ```
 
-ChatPic also triggers on requests for covers, thumbnails, posters, banners, article illustrations, product images, avatars, wallpapers, background replacement, object removal, inpainting, outpainting, and style conversion.
+ChatPic 也支持封面、缩略图、海报、横幅、文章插图、产品图、头像、壁纸、背景替换、物体移除、局部重绘、扩图和风格转换等需求。
 
-## Public service model
+## 公共服务模式
 
-The embedded client credential is intentionally public. It is restricted server-side to image generation and editing and shares the same public-IP trial controls as the Wokey web image service.
+内置客户端凭证是有意公开的。服务端将其权限限制在图片生成和编辑接口，并使用与 Wokey 网页生图服务相同的公网 IP 试用控制。
 
-- Users do not configure or bring a key.
-- The service may reject requests when the public-IP allowance is exhausted or the client IP cannot be determined.
-- Limits, availability, models, and commercial terms may change.
-- Do not use forwarded-IP headers or other methods to bypass service controls.
+- 用户无需配置或提供 API Key。
+- 公网 IP 的试用额度用完，或服务无法识别客户端公网 IP 时，请求可能被拒绝。
+- 限额、服务可用性、模型和商业条款可能调整。
+- 请勿使用转发 IP 请求头或其他方式绕过服务限制。
 
-## Development
+## 开发
 
-Requires Python 3.10 or newer. Run the offline test suite with:
+需要 Python 3.10 或更高版本。运行离线测试：
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-Validate the Skill with a compatible Agent Skills validator before publishing.
+发布前，请使用兼容的 Agent Skills 验证工具检查 Skill。
 
-Client documentation:
+客户端文档：
 
 - [Hermes Skills](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills)
 - [Claude Code Skills](https://code.claude.com/docs/en/slash-commands)
 - [OpenClaw Skills](https://docs.openclaw.ai/skills)
 
-## License
+## 许可证
 
 MIT
-
-## 中文简介
-
-ChatPic 是一个面向非 Codex Agent 客户端的生图与改图 Skill。用户安装后即可通过自然语言生成或编辑图片，无需注册账号、配置环境变量或提供个人 API Key。内置凭证属于有意公开的受限客户端凭证，实际权限和额度由服务端控制。
