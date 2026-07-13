@@ -38,7 +38,7 @@ The distributable Skill is the `skills/chatpic` directory. Repository documentat
 Send this message directly to Claude Code, Codex, OpenClaw, Hermes, or another compatible agent:
 
 ```text
-Run `npx -y skills add focuxdot/ChatPic --skill chatpic --global` to install ChatPic, then confirm that the installation succeeded.
+Please install the ChatPic Skill for me: https://github.com/focuxdot/ChatPic
 ```
 
 ### Option 2: Install from your terminal

@@ -36,7 +36,7 @@ chatpic/
 把下面这句话直接发给 Claude Code、Codex、OpenClaw、Hermes 等 Agent：
 
 ```text
-请执行 `npx -y skills add focuxdot/ChatPic --skill chatpic --global` 安装 ChatPic，并确认安装成功。
+请帮我安装 ChatPic Skill：https://github.com/focuxdot/ChatPic
 ```
 
 ### 方式二：在终端安装
