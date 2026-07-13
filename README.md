@@ -2,7 +2,7 @@
 
 **简体中文** | [English](README.en.md)
 
-ChatPic 为 AI 编程 Agent 提供简单的图片生成与编辑 Skill。安装 Skill 后，只需用自然语言描述需求，即可获得本地 PNG 图片——无需注册账号、订阅服务、配置环境变量或提供个人 API Key。
+ChatPic 是一个 AI Agent 生图和改图 Skill。安装后直接说出需求即可，无需注册或配置 API Key。
 
 适用于 Hermes、Claude Code、OpenClaw 等兼容 Agent Skills 的客户端。
 
