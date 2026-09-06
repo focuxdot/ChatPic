@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | **English**
 
-ChatPic gives AI coding agents a simple image-generation and image-editing Skill. Install the Skill, ask for an image in natural language, and receive a local PNG—no account, subscription, environment variable, or personal API key required.
+ChatPic gives AI coding agents a simple image-generation and image-editing Skill. Install the Skill, configure your own Wokey API key, and ask for an image in natural language to receive a local PNG.
 
 It is designed for Agent Skills-compatible clients such as Hermes, Claude Code, and OpenClaw.
 
@@ -12,8 +12,6 @@ It is designed for Agent Skills-compatible clients such as Hermes, Claude Code, 
 - Reference-image editing
 - Chinese and English trigger phrases
 - One image per request through `gpt-image-2`
-- Built-in public client credential
-- Server-side endpoint restrictions and public-IP quotas
 - Dependency-free Python client
 
 ## Repository layout
@@ -39,7 +37,11 @@ Send this message directly to Claude Code, Codex, OpenClaw, Hermes, or another c
 
 ```text
 Please install the ChatPic Skill for me: https://github.com/focuxdot/ChatPic
+After installation, guide me through configuring my own Wokey API key.
+Use this Skill's scripts by default for future image generation and editing.
 ```
+
+Follow the agent's instructions, paste your key at the terminal's hidden input prompt, and press Enter. The saved key is reused automatically for future requests.
 
 ### Option 2: Install from your terminal
 
@@ -48,6 +50,31 @@ npx -y skills add focuxdot/ChatPic --skill chatpic --global
 ```
 
 The installer detects your local agent and installs ChatPic into its global Skill directory. Node.js 18 or newer is required.
+
+## Configure your API key
+
+If ChatPic is already installed, or you want to replace your key, tell your agent:
+
+```text
+Help me configure my ChatPic API key.
+```
+
+The agent will open the interactive configuration command or provide a command ready to run in your local terminal. Paste your key and press Enter; file creation, saving, and permissions are handled automatically. Paste the key at the terminal's hidden input prompt, not into chat.
+
+<details>
+<summary>Run the configuration command manually</summary>
+
+Replace `<skill_dir>` with the actual ChatPic installation directory:
+
+```bash
+python3 <skill_dir>/scripts/chatpic.py configure
+```
+
+Configuration is saved in `~/.config/chatpic/.env` and survives Skill upgrades. Run the same command again to replace your key.
+
+</details>
+
+Saving the key incurs no charges. Your Wokey account determines the allowance and billing for subsequent generation and editing.
 
 ## Use
 
@@ -66,15 +93,6 @@ Create a clean 16:9 hero image for an AI developer tool.
 ```
 
 ChatPic also triggers on requests for covers, thumbnails, posters, banners, article illustrations, product images, avatars, wallpapers, background replacement, object removal, inpainting, outpainting, and style conversion.
-
-## Public service model
-
-The embedded client credential is intentionally public. It is restricted server-side to image generation and editing and shares the same public-IP trial controls as the Wokey web image service.
-
-- Users do not configure or bring a key.
-- The service may reject requests when the public-IP allowance is exhausted or the client IP cannot be determined.
-- Limits, availability, models, and commercial terms may change.
-- Do not use forwarded-IP headers or other methods to bypass service controls.
 
 ## Development
 

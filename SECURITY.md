@@ -1,10 +1,12 @@
 # Security
 
-## Public client credential
+## Personal API key
 
-ChatPic intentionally contains a public client credential so users can install and use the Skill without configuring a personal secret. The credential is restricted server-side to image endpoints and protected by public-IP quotas.
+ChatPic requires the user's own Wokey API key in `~/.config/chatpic/.env` as `CHATPIC_API_KEY`. It has no embedded credential and does not read API keys from environment variables or project files.
 
-The presence of this credential in the repository is not, by itself, a credential leak. Please report cases where it can access unrelated endpoints, bypass service controls, expose private data, or gain privileges beyond public image generation and editing.
+The `configure` command accepts hidden terminal input and saves the key atomically, using file mode `600` on POSIX systems. It refuses input when the terminal cannot hide it. The configuration file contains the key in plaintext. On POSIX systems, the script rejects files accessible to group or other users; set its permissions to `600`. Keep real keys out of chats, source code, and Git. The script does not print the key and redacts it from reported request errors.
+
+Requests use the configured key for image generation and editing at `https://api.wokey.ai/v1/images`. Missing, empty, or invalid configuration stops the script before any request. Account permissions, allowance, billing, routing, and abuse controls are enforced by Wokey; client configuration does not bypass those controls.
 
 ## Reporting
 

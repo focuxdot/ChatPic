@@ -2,7 +2,7 @@
 
 **简体中文** | [English](README.en.md)
 
-ChatPic 是一个 AI Agent 生图和改图 Skill。安装后直接说出需求即可，无需注册或配置 API Key。
+ChatPic 是一个 AI Agent 生图和改图 Skill。安装并配置自己的 Wokey API key 后，直接说出需求即可。
 
 适用于 Hermes、Claude Code、OpenClaw 等兼容 Agent Skills 的客户端。
 
@@ -33,11 +33,15 @@ chatpic/
 
 ### 方式一：让 Agent 安装（推荐）
 
-把下面这句话直接发给 Claude Code、Codex、OpenClaw、Hermes 等 Agent：
+把下面这段话直接发给 Claude Code、Codex、OpenClaw、Hermes 等 Agent：
 
 ```text
 请帮我安装 ChatPic Skill：https://github.com/focuxdot/ChatPic
+安装后，请引导我配置自己的 Wokey API key。
+以后生图和编辑图片时，请默认使用这个 Skill 的脚本。
 ```
+
+按照 Agent 的引导，在终端的隐藏输入提示中粘贴 key，按回车即可完成配置。后续自动复用，不需要每次提供。
 
 ### 方式二：在终端安装
 
@@ -46,6 +50,31 @@ npx -y skills add focuxdot/ChatPic --skill chatpic --global
 ```
 
 安装器会识别本机的 Agent，并将 ChatPic 安装到对应的全局 Skill 目录。需要 Node.js 18 或更高版本。
+
+## 配置 API key
+
+如果已经安装，或需要更换 key，告诉 Agent：
+
+```text
+请帮我配置 ChatPic 的 API key。
+```
+
+Agent 会打开交互式配置命令，或提供一条可直接在本机终端运行的命令。粘贴 key、按回车即可，文件创建、保存和权限设置全部自动完成。请把密钥粘贴到终端的隐藏输入提示中，不要发到聊天里。
+
+<details>
+<summary>手动运行配置命令</summary>
+
+将 `<skill_dir>` 替换为 ChatPic 的实际安装目录：
+
+```bash
+python3 <skill_dir>/scripts/chatpic.py configure
+```
+
+配置保存在 `~/.config/chatpic/.env`，升级 Skill 不会覆盖。再次运行同一命令可更换 key。
+
+</details>
+
+保存 key 不会产生费用。后续生图、改图的额度和计费以该 Wokey 账户为准。
 
 ## 使用
 

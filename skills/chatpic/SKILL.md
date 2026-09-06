@@ -41,8 +41,22 @@ If a specialist Skill helps plan an article illustration, cover, poster, or layo
 ## Requirements
 
 - Invoke `scripts/chatpic.py` through the client's shell, terminal, Bash, or exec tool with a 360-second timeout. Resolve `<skill_dir>` as the directory containing this `SKILL.md`.
-- Do not ask the user to configure an API key, create an account, or set an environment variable.
+- A personal Wokey API key is required in `~/.config/chatpic/.env`. See configuration below when setup is needed.
 - Do not rewrite the API request as inline Python, shell, or `curl`; the bundled script owns authentication, request encoding, response parsing, decoding, and file writes.
+
+## API Key Configuration
+
+When the user asks to configure or replace their key, resolve the installed script path and open this command in a user-accessible interactive terminal, if supported. Otherwise give the user the complete command with the actual installed path to run in their terminal:
+
+```bash
+python3 <skill_dir>/scripts/chatpic.py configure
+```
+
+The user pastes their Wokey API key at the hidden input prompt and presses Enter. The script creates `~/.config/chatpic/.env` with private file permissions and saves `CHATPIC_API_KEY` automatically. Re-running the command replaces the saved key. Do not ask the user to edit files, send the key in chat, or put it in a command argument. Do not run configure in a background exec session that the user cannot type into.
+
+Generation and editing read only this file, which survives Skill upgrades. There is no embedded key, environment-variable lookup, or project-config fallback. Do not read the file into conversation; the script checks it itself. `--dry-run` checks configuration without making a request. Saving the file does not validate the key with Wokey or authorize a paid test generation.
+
+On `api_key_missing`, guide the user through configure and stop until configured. On `api_key_config_*` errors, explain the required repair. On authentication or balance errors, explain that the user should check their Wokey key or account; do not retry automatically or switch credentials.
 
 ## Workflow
 
@@ -87,14 +101,12 @@ Always include the returned bare absolute image path in the final response. Let 
 - Size is `auto` or `WIDTHxHEIGHT`, with each dimension from 128 to 4096.
 - Quality is `auto`, `low`, `medium`, or `high`.
 - Generation and editing can take several minutes; do not treat a slow response as failure before the request timeout.
-- The built-in shared key is restricted to image generation and editing and uses the same public-IP trial allowance as Wokey Studio.
-- On `public_image_trial_ip_quota_exceeded`, explain that the IP's free image allowance is exhausted; do not retry with the shared key.
-- On `public_image_trial_ip_unavailable`, explain that Wokey could not identify a public client IP; do not attempt to bypass the check with forwarded-IP headers.
+- Requests use the user's Wokey API key and are subject to that account's permissions, allowance, and billing.
 
 ## Common Pitfalls
 
 1. Do not use a native image backend or load another final image-generation Skill.
-2. Do not ask users for credentials; installation is sufficient.
+2. If configuration is missing, guide the user through configure; never ask them to paste the key into chat.
 3. Do not recreate the HTTP request inline. Always invoke the bundled script.
 4. Do not run vision analysis for every ordinary image.
 5. Do not claim success until the script returns `success: true`.
@@ -102,7 +114,7 @@ Always include the returned bare absolute image path in the final response. Let 
 
 ## Verification Checklist
 
-- [ ] The bundled script was invoked exactly once without asking for configuration.
+- [ ] The bundled script used the personal key from the user configuration file; configuration errors were handled before retrying.
 - [ ] Its JSON result reported success and a non-empty output file.
 - [ ] Vision verification was used only when justified.
 - [ ] The final response included the bare absolute path for surface-appropriate delivery.

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Thin, dependency-free client for the ChatPic public image service."""
+"""Thin, dependency-free client for the ChatPic image service."""
 
 from __future__ import annotations
 
 import argparse
 import base64
+import getpass
 import json
 import mimetypes
 import os
@@ -17,12 +18,10 @@ import tempfile
 import urllib.error
 import urllib.request
 import uuid
+import warnings
 
 
 API_BASE = "https://api.wokey.ai/v1/images"
-# Intentionally public client credential. The service restricts it to image
-# endpoints and enforces public-IP quotas server-side.
-SERVICE_KEY = "sk-" + "00b16c2c235cbb1b8c4eb0e4d8bc15a4"
 MODEL = "gpt-image-2"
 TIMEOUT_SECONDS = 300
 MAX_IMAGES = 8
@@ -33,6 +32,65 @@ ALLOWED_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 
 class ChatPicError(RuntimeError):
     pass
+
+
+def _validate_api_key(api_key: str) -> str:
+    if not api_key or any(not 33 <= ord(char) <= 126 or char in "\"'" for char in api_key):
+        raise ChatPicError("api_key_config_invalid: Enter a non-empty API key without spaces or quotes.")
+    return api_key
+
+
+def _configure() -> dict:
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", getpass.GetPassWarning)
+            api_key = getpass.getpass("Wokey API key (hidden): ").strip()
+    except (getpass.GetPassWarning, EOFError):
+        raise ChatPicError("api_key_config_terminal_required: Run the configure command in an interactive terminal.") from None
+    except KeyboardInterrupt:
+        raise ChatPicError("api_key_config_cancelled: Configuration unchanged.") from None
+    api_key = _validate_api_key(api_key)
+    path = pathlib.Path.home() / ".config" / "chatpic" / ".env"
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    handle, temporary = tempfile.mkstemp(prefix=".env.", dir=path.parent)
+    try:
+        with os.fdopen(handle, "w", encoding="utf-8") as stream:
+            stream.write(f"CHATPIC_API_KEY={api_key}\n")
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+    return {"success": True, "message": "API key saved. Future image generation and editing will use it."}
+
+
+def _load_api_key() -> str:
+    path = pathlib.Path.home() / ".config" / "chatpic" / ".env"
+    instruction = "Run chatpic.py configure in an interactive terminal to save your API key."
+    try:
+        if os.name == "posix" and path.stat().st_mode & 0o077:
+            raise ChatPicError(
+                "api_key_config_permissions: Run chmod 600 ~/.config/chatpic/.env."
+            )
+        contents = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        raise ChatPicError(f"api_key_missing: {instruction}") from None
+    except (OSError, UnicodeError):
+        raise ChatPicError(f"api_key_config_unreadable: {instruction}") from None
+
+    api_key = None
+    for line in contents.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        name, separator, value = line.partition("=")
+        if name.strip() != "CHATPIC_API_KEY" or not separator or api_key is not None:
+            raise ChatPicError(f"api_key_config_invalid: {instruction}")
+        api_key = value.strip()
+        if len(api_key) >= 2 and api_key[0] in "\"'" and api_key[-1] == api_key[0]:
+            api_key = api_key[1:-1]
+    if not api_key:
+        raise ChatPicError(f"api_key_missing: {instruction}")
+    return _validate_api_key(api_key)
 
 
 def _prompt(args: argparse.Namespace) -> str:
@@ -74,12 +132,12 @@ def _parse_response(raw: bytes) -> dict:
     return payload
 
 
-def _request(endpoint: str, body: bytes, content_type: str) -> dict:
+def _request(endpoint: str, body: bytes, content_type: str, api_key: str) -> dict:
     request = urllib.request.Request(
         f"{API_BASE}/{endpoint}",
         data=body,
         headers={
-            "Authorization": f"Bearer {SERVICE_KEY}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": content_type,
             "Accept": "application/json",
             "User-Agent": "ChatPic-Skill/1.0",
@@ -240,6 +298,7 @@ def _dry_run(args: argparse.Namespace, prompt: str, images: list[pathlib.Path]) 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate or edit one image with ChatPic.")
     subparsers = parser.add_subparsers(dest="mode", required=True)
+    subparsers.add_parser("configure", help="Save your Wokey API key with hidden input.")
 
     def common(subparser: argparse.ArgumentParser) -> None:
         prompts = subparser.add_mutually_exclusive_group(required=True)
@@ -261,7 +320,12 @@ def _parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = _parser().parse_args()
+    api_key = ""
     try:
+        if args.mode == "configure":
+            print(json.dumps(_configure(), ensure_ascii=False))
+            return 0
+        api_key = _load_api_key()
         prompt = _prompt(args)
         images = _validate_images(args.image) if args.mode == "edit" else []
         if args.dry_run:
@@ -278,7 +342,7 @@ def main() -> int:
                 },
                 ensure_ascii=False,
             ).encode("utf-8")
-            result = _save(_request("generations", body, "application/json"), args.output)
+            result = _save(_request("generations", body, "application/json", api_key), args.output)
         else:
             body, content_type = _multipart(
                 [
@@ -289,11 +353,12 @@ def main() -> int:
                 ],
                 images,
             )
-            result = _save(_request("edits", body, content_type), args.output)
+            result = _save(_request("edits", body, content_type, api_key), args.output)
         print(json.dumps(result, ensure_ascii=False))
         return 0
     except (ChatPicError, OSError) as exc:
-        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        message = str(exc).replace(api_key, "[REDACTED]") if api_key else str(exc)
+        print(json.dumps({"success": False, "error": message}, ensure_ascii=False), file=sys.stderr)
         return 1
 
 
