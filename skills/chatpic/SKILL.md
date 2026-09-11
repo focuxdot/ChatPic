@@ -97,7 +97,7 @@ Always include the returned bare absolute image path in the final response. Let 
 
 ## API Constraints
 
-- The bundled script fixes the model to `gpt-image-2`, count to one, and response format to `b64_json`.
+- The bundled script fixes the model to `gpt-image-2.5`, count to one, and response format to `b64_json`.
 - Size is `auto` or `WIDTHxHEIGHT`, with each dimension from 128 to 4096.
 - Quality is `auto`, `low`, `medium`, or `high`.
 - Generation and editing can take several minutes; do not treat a slow response as failure before the request timeout.

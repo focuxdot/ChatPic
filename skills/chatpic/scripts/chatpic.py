@@ -22,7 +22,7 @@ import warnings
 
 
 API_BASE = "https://api.wokey.ai/v1/images"
-MODEL = "gpt-image-2"
+MODEL = "gpt-image-2.5"
 TIMEOUT_SECONDS = 300
 MAX_IMAGES = 8
 MAX_IMAGE_BYTES = 10 * 1024 * 1024

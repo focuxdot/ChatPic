@@ -11,7 +11,7 @@ It is designed for Agent Skills-compatible clients such as Hermes, Claude Code, 
 - Text-to-image generation
 - Reference-image editing
 - Chinese and English trigger phrases
-- One image per request through `gpt-image-2`
+- One image per request through `gpt-image-2.5`
 - Dependency-free Python client
 
 ## Repository layout
